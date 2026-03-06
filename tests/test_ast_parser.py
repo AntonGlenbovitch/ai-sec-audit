@@ -67,3 +67,19 @@ def test_to_json_returns_valid_json(tmp_path: Path) -> None:
 
     assert parsed["summary"]["python_files"] == 1
     assert parsed["files"][0]["functions"][0]["name"] == "f"
+
+
+def test_parse_repository_includes_nested_python_files_only(tmp_path: Path) -> None:
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "mod.py").write_text("def nested():\n    return 1\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text("not python", encoding="utf-8")
+
+    parser = RepositoryAstParser(tmp_path)
+    result = parser.parse()
+
+    assert result["summary"] == {
+        "python_files": 1,
+        "parsed_files": 1,
+        "files_with_errors": 0,
+    }
+    assert result["files"][0]["path"] == "pkg/mod.py"
