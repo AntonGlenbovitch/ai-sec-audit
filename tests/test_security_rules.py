@@ -52,3 +52,24 @@ def test_scan_source_handles_syntax_error() -> None:
     assert result["path"] == "bad.py"
     assert result["parse_error"] is not None
     assert result["summary"]["total"] == 0
+
+
+def test_scan_source_ignores_empty_secret_literal() -> None:
+    result = scan_source('password = ""\n')
+
+    assert result["summary"]["total"] == 0
+    assert result["findings"] == []
+
+
+def test_scan_source_supports_builtin_prefixed_calls() -> None:
+    source = """
+import builtins
+
+builtins.eval('1 + 1')
+builtins.exec('print(1)')
+"""
+    result = scan_source(source)
+
+    rule_ids = {finding["rule_id"] for finding in result["findings"]}
+    assert rule_ids == {"PY-EVAL-001", "PY-EXEC-001"}
+    assert result["summary"]["by_severity"]["high"] == 2

@@ -45,3 +45,18 @@ def test_scan_command_fails_for_invalid_path() -> None:
 
     assert result.exit_code == 1
     assert "Repository path does not exist or is not a directory" in result.stdout
+
+
+def test_scan_command_skips_files_with_parse_errors(tmp_path: Path) -> None:
+    good = tmp_path / "good.py"
+    good.write_text("password = 'abc123'\n", encoding="utf-8")
+
+    bad = tmp_path / "bad.py"
+    bad.write_text("def broken(:\n    pass\n", encoding="utf-8")
+
+    result = runner.invoke(app, ["scan", str(tmp_path)])
+
+    assert result.exit_code == 0
+    assert "'parsed_python_files': 1" in result.stdout
+    assert "'files_with_parse_errors': 1" in result.stdout
+    assert "'total_findings': 1" in result.stdout
