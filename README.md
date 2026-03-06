@@ -61,7 +61,7 @@ Show CLI commands:
 python -m cli.main --help
 ```
 
-Run the example scan command against a local path:
+Run the scan pipeline against a local repository path:
 
 ```bash
 python -m cli.main scan ./
@@ -90,9 +90,10 @@ python -m cli.main version
 
 ```text
 CLI command
-  -> target selection
-  -> scan invocation (placeholder)
-  -> user-visible output
+  -> parse repository
+  -> run scanner
+  -> run LLM reasoning
+  -> generate report
 ```
 
 ### Target end-state flow
@@ -119,15 +120,18 @@ $ python -m cli.main --help
  AI security audit CLI
 
  Commands:
-   scan     Placeholder scan command.
+   scan     Scan a repository through parser, scanner, LLM reasoning, and reporting stages.
    version  Show the current project version.
 ```
 
 Example scan output:
 
 ```text
-$ python -m cli.main scan ./
-Scanning target: ./
+$ python -m cli.main scan ./repo
+[1/4] Parsing repository: /abs/path/repo
+[2/4] Running scanner
+[3/4] Running LLM reasoning
+[4/4] Generating report
 ```
 
 ## Future Roadmap
